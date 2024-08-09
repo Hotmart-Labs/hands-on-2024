@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/toastr.min.css" rel="stylesheet">
+
+        <style>
+            textarea.tweet {
+                resize: none;
+                overflow: hidden;
+                min-height: 30px;
+                height: 30px;
+                border: none;
+                box-shadow: none!important;
+            }
+
+            .main-container {
+                min-height: 100vh;
+            }
+
+            .flex-fill {
+                flex:1 1 auto;
+            }
+
+            .pre-formatted {
+                white-space: pre;
+            }
+
+            .nav .nav-link .svg-inline-logo {
+                height: 2em;
+                fill: rgba(29,161,242,1.00);
+            }
+
+            .nav .nav-link .svg-inline-fa {
+                height: 2em;
+                margin-right: 1em;
+            }
+
+            .nav .nav-link .svg-inline-sm-fa {
+                height: 24px;
+                width: 24px;
+                margin: 4px;
+                fill: rgba(29,161,242,1.00);
+            }
+
+            .text-secondary .svg-inline-fa {
+                height: 18px;
+                width: 18px;
+                vertical-align: text-bottom;
+                fill: #6c757d;
+            }
+
+            .nav .nav-link {
+                margin-bottom: 1em;
+            }
+
+            .nav .nav-link {
+                color: black;
+            }
+
+            .nav .active .svg-inline-fa, .nav .nav-link:hover .svg-inline-fa {
+                fill: rgba(29,161,242,1.00);
+            }
+
+            .nav .active > span, .nav .nav-link:hover > span {
+                color: rgba(29,161,242,1.00);
+            }
+
+            .ho-input-group svg {
+                overflow: visible;
+                width: 1em;
+                top: 1.2rem;
+                left: 1.1rem;
+                transform: translate(-50%,-50%);
+                display: inline-block;
+                font-size: inherit;
+                height: 1em;
+                vertical-align: -.125em;
+            }
+
+            .ho-input-group .search-box {
+                padding-left: 2rem;
+            }
+
+            .rounded-10 {
+                border-radius: 1rem!important;
+            }
+
+            .tweet-card .svg-inline-sm-fa {
+                height: 18px!important;
+                width: 18px!important;;
+                fill: rgb(91, 112, 131)!important;;
+            }
+
+            .tweet-card .nav .nav-link .text-secondary {
+                font-size: smaller;
+            }
+
+            .border-secondary {
+                border-color: rgb(235, 238, 240)!important;
+            }
+
+            .fs-7 {
+                font-size: 0.9em!important;
+            }
+
+            .fs-8 {
+                font-size: 0.8em!important;
+            }
+
+            .fs-8 .svg-inline-fa {
+                height: 16px!important;
+                width: 16px!important;
+            }
+
+            .liked .svg-inline-sm-fa {
+                fill: rgb(224, 36, 94)!important;
+            }
+
+            .liked .text-secondary {
+                color: rgb(224, 36, 94)!important;
+            }
+
+            .text-primary {
+                color: rgba(29,161,242,1.00)!important;
+            }
+
+            .border-primary {
+                border-color: rgba(29,161,242,1.00)!important;
+            }
+
+            .btn-primary {
+                color: #fff;
+                background-color: rgba(29,161,242,1.00);
+                border-color: rgba(29,161,242,1.00);
+            }
+
+            .tab a, .profile a {
+                color: rgba(29,161,242,1.00);
+            }
+        </style>
+        <title>Hands-on 2024</title>
+    </head>
+
+    <body>
+        <div id="app">
+            <router-view></router-view>
+        </div>
+
+        <script type="text/x-template" id="timeline-layout">
+            <div class="d-flex justify-content-center main-container">
+                <div class="col-2 col-sm-3 d-flex flex-column" style="max-width: 300px">
+                    <main-menu :user="user"></main-menu>
+                    <auth :user="user"></auth>
+                </div>
+                <div class="col-6 col-lg-5 align-content-stretch border-start border-end border-secondary" style="max-width: 600px">
+                    <div v-if="loading" class="loading">
+                        Loading...
+                    </div>
+                    <div v-if="error" class="error">
+                        {{ error }}
+                    </div>
+                    <div v-if="user" class="content">
+                        <timeline-header :user="user"></timeline-header>
+                        <profile :user="user"></profile>
+                        <timeline :user="user"></timeline>
+                    </div>
+                </div>
+                <div class="col-3 col-sm-4 p-3" style="max-width: 450px">
+                    <div class="container">
+                        <div class="row">
+                            <form class="p-0">
+                                <div class="ho-input-group position-relative mb-3">
+                                    <input type="text" placeholder="Search Twitter" class="form-control rounded-pill search-box">
+                                    <svg viewBox="0 0 24 24" class="text-muted position-absolute"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <latest-users :user="user"></latest-users>
+                        </div>
+                        <div class="row mt-3">
+                            <input type="button" value="Create user" class="btn btn-primary form-control rounded-pill" v-on:click="createUser"/>
+                        </div>
+                    </div>
+                </div>
+                <new-user></new-user>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="timeline-header">
+            <div>
+                <div class="m-2">
+                    <div class="fs-4 fw-bold">{{user.name}}</div>
+                    <div class="text-secondary fw-light">{{user.stats.tweets | formatNumber}} Tweets</div>
+                </div>
+                <div class="border-bottom border-secondary border-1"></div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="auth">
+            <div class="m-3 mt-4">
+                <a @click="switchAccount" class="btn btn-secondary rounded-pill form-control border-0 p-2 container">
+                    <div class="row">
+                        <div class="col-3 p-0 m-0">
+                            <img :src="loggedUser.picture ? '/media/' + loggedUser.picture : '/img/user-placeholder.jpg'" width="50" height="50" class="rounded-circle">
+                        </div>
+                        <div class="col p-0 text-start">
+                            <div class="fw-bold">{{loggedUser.name}}</div>
+                            <div class="fw-light">@{{loggedUser.username}}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="main-menu">
+            <div class="mb-4">
+                <nav class="nav flex-column">
+                    <a class="nav-link">
+                        <svg class="svg-inline-logo" viewBox="0 0 24 24"><g><path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"></path></g></svg>
+                    </a>
+                    <a class="nav-link" @click="home" href="javascript:">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M22.46 7.57L12.357 2.115c-.223-.12-.49-.12-.713 0L1.543 7.57c-.364.197-.5.652-.303 1.017.135.25.394.393.66.393.12 0 .243-.03.356-.09l.815-.44L4.7 19.963c.214 1.215 1.308 2.062 2.658 2.062h9.282c1.352 0 2.445-.848 2.663-2.087l1.626-11.49.818.442c.364.193.82.06 1.017-.304.196-.363.06-.818-.304-1.016zm-4.638 12.133c-.107.606-.703.822-1.18.822H7.36c-.48 0-1.075-.216-1.178-.798L4.48 7.69 12 3.628l7.522 4.06-1.7 12.015z"></path><path d="M8.22 12.184c0 2.084 1.695 3.78 3.78 3.78s3.78-1.696 3.78-3.78-1.695-3.78-3.78-3.78-3.78 1.696-3.78 3.78zm6.06 0c0 1.258-1.022 2.28-2.28 2.28s-2.28-1.022-2.28-2.28 1.022-2.28 2.28-2.28 2.28 1.022 2.28 2.28z"></path></g></svg>
+                        <span class="fw-bold">Home</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
+                        <span class="fw-bold">Explore</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M21.697 16.468c-.02-.016-2.14-1.64-2.103-6.03.02-2.532-.812-4.782-2.347-6.335C15.872 2.71 14.01 1.94 12.005 1.93h-.013c-2.004.01-3.866.78-5.242 2.174-1.534 1.553-2.368 3.802-2.346 6.334.037 4.33-2.02 5.967-2.102 6.03-.26.193-.366.53-.265.838.102.308.39.515.712.515h4.92c.102 2.31 1.997 4.16 4.33 4.16s4.226-1.85 4.327-4.16h4.922c.322 0 .61-.206.71-.514.103-.307-.003-.645-.263-.838zM12 20.478c-1.505 0-2.73-1.177-2.828-2.658h5.656c-.1 1.48-1.323 2.66-2.828 2.66zM4.38 16.32c.74-1.132 1.548-3.028 1.524-5.896-.018-2.16.644-3.982 1.913-5.267C8.91 4.05 10.397 3.437 12 3.43c1.603.008 3.087.62 4.18 1.728 1.27 1.285 1.933 3.106 1.915 5.267-.024 2.868.785 4.765 1.525 5.896H4.38z"></path></g></svg>
+                        <span class="fw-bold">Notifications</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M19.25 3.018H4.75C3.233 3.018 2 4.252 2 5.77v12.495c0 1.518 1.233 2.753 2.75 2.753h14.5c1.517 0 2.75-1.235 2.75-2.753V5.77c0-1.518-1.233-2.752-2.75-2.752zm-14.5 1.5h14.5c.69 0 1.25.56 1.25 1.25v.714l-8.05 5.367c-.273.18-.626.182-.9-.002L3.5 6.482v-.714c0-.69.56-1.25 1.25-1.25zm14.5 14.998H4.75c-.69 0-1.25-.56-1.25-1.25V8.24l7.24 4.83c.383.256.822.384 1.26.384.44 0 .877-.128 1.26-.383l7.24-4.83v10.022c0 .69-.56 1.25-1.25 1.25z"></path></g></svg>
+                        <span class="fw-bold">Messages</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M19.9 23.5c-.157 0-.312-.05-.442-.144L12 17.928l-7.458 5.43c-.228.164-.53.19-.782.06-.25-.127-.41-.385-.41-.667V5.6c0-1.24 1.01-2.25 2.25-2.25h12.798c1.24 0 2.25 1.01 2.25 2.25v17.15c0 .282-.158.54-.41.668-.106.055-.223.082-.34.082zM12 16.25c.155 0 .31.048.44.144l6.71 4.883V5.6c0-.412-.337-.75-.75-.75H5.6c-.413 0-.75.338-.75.75v15.677l6.71-4.883c.13-.096.285-.144.44-.144z"></path></g></svg>
+                        <span class="fw-bold">Bookmarks</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M19.75 22H4.25C3.01 22 2 20.99 2 19.75V4.25C2 3.01 3.01 2 4.25 2h15.5C20.99 2 22 3.01 22 4.25v15.5c0 1.24-1.01 2.25-2.25 2.25zM4.25 3.5c-.414 0-.75.337-.75.75v15.5c0 .413.336.75.75.75h15.5c.414 0 .75-.337.75-.75V4.25c0-.413-.336-.75-.75-.75H4.25z"></path><path d="M17 8.64H7c-.414 0-.75-.337-.75-.75s.336-.75.75-.75h10c.414 0 .75.335.75.75s-.336.75-.75.75zm0 4.11H7c-.414 0-.75-.336-.75-.75s.336-.75.75-.75h10c.414 0 .75.336.75.75s-.336.75-.75.75zm-5 4.11H7c-.414 0-.75-.335-.75-.75s.336-.75.75-.75h5c.414 0 .75.337.75.75s-.336.75-.75.75z"></path></g></svg>
+                        <span class="fw-bold">Lists</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M12 11.816c1.355 0 2.872-.15 3.84-1.256.814-.93 1.078-2.368.806-4.392-.38-2.825-2.117-4.512-4.646-4.512S7.734 3.343 7.354 6.17c-.272 2.022-.008 3.46.806 4.39.968 1.107 2.485 1.256 3.84 1.256zM8.84 6.368c.162-1.2.787-3.212 3.16-3.212s2.998 2.013 3.16 3.212c.207 1.55.057 2.627-.45 3.205-.455.52-1.266.743-2.71.743s-2.255-.223-2.71-.743c-.507-.578-.657-1.656-.45-3.205zm11.44 12.868c-.877-3.526-4.282-5.99-8.28-5.99s-7.403 2.464-8.28 5.99c-.172.692-.028 1.4.395 1.94.408.52 1.04.82 1.733.82h12.304c.693 0 1.325-.3 1.733-.82.424-.54.567-1.247.394-1.94zm-1.576 1.016c-.126.16-.316.246-.552.246H5.848c-.235 0-.426-.085-.552-.246-.137-.174-.18-.412-.12-.654.71-2.855 3.517-4.85 6.824-4.85s6.114 1.994 6.824 4.85c.06.242.017.48-.12.654z"></path></g></svg>
+                        <span class="fw-bold">Profile</span>
+                    </a>
+                    <a class="nav-link">
+                        <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><circle cx="17" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="7" cy="12" r="1.5"></circle><path d="M12 22.75C6.072 22.75 1.25 17.928 1.25 12S6.072 1.25 12 1.25 22.75 6.072 22.75 12 17.928 22.75 12 22.75zm0-20C6.9 2.75 2.75 6.9 2.75 12S6.9 21.25 12 21.25s9.25-4.15 9.25-9.25S17.1 2.75 12 2.75z"></path></g></svg>
+                        <span class="fw-bold">More</span>
+                    </a>
+                </nav>
+                <div class="ms-3 me-3">
+                    <a @click="createTweet" href="javascript:" class="btn btn-primary rounded-pill form-control border-0 p-2">
+                        Tweet
+                    </a>
+                </div>
+
+                <!-- New Tweet Modal -->
+                <div class="modal fade" id="newTweetModal" tabindex="-1" aria-labelledby="newTweetModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="newTweetModalLabel">Tweet</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <new-tweet :profile="user"></new-tweet>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="profile">
+            <div class="container profile">
+                <div class="row position-relative">
+                    <div class="col-12 p-0">
+                        <img class="img-fluid" :src="user.banner ? '/media/' + user.banner : '/img/banner-placeholder.jpg'"/>
+                    </div>
+                    <div class="col-3 position-absolute" style="bottom: -60px">
+                        <img class="rounded-circle border border-white border-4" :src="user.picture ? '/media/' + user.picture : '/img/user-placeholder.jpg'" width="120" height="120" />
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                    <ul class="nav nav-pills profile-toolbar">
+                        <li class="nav-item" v-if="!isMyself">
+                            <a class="nav-link p-0">
+                                <div class="border border-primary rounded-circle p-1">
+                                    <svg class="svg-inline-sm-fa" viewBox="0 0 24 24"><g><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></g></svg>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item" v-if="!isMyself">
+                            <a class="nav-link p-0 m-2 mt-0">
+                                <div class="border border-primary rounded-circle p-1">
+                                    <svg class="svg-inline-sm-fa" viewBox="0 0 24 24"><g><path d="M23.24 3.26h-2.425V.832c0-.414-.336-.75-.75-.75s-.75.336-.75.75V3.26H16.89c-.414 0-.75.335-.75.75s.336.75.75.75h2.426v2.424c0 .414.336.75.75.75s.75-.336.75-.75V4.76h2.425c.415 0 .75-.337.75-.75s-.336-.75-.75-.75zm-6.23 7.606c.02-2.434-.782-4.597-2.258-6.09-1.324-1.342-3.116-2.084-5.046-2.093h-.013c-1.93.01-3.722.75-5.046 2.092C3.172 6.27 2.37 8.433 2.39 10.867 2.426 15 .467 16.56.39 16.62c-.26.193-.367.53-.266.838.102.308.39.515.712.515h4.716c.11 2.226 1.94 4.007 4.194 4.007s4.083-1.78 4.194-4.007h4.625c.32 0 .604-.206.707-.51s0-.643-.255-.838c-.082-.064-2.043-1.625-2.008-5.76zM9.745 20.48c-1.426 0-2.586-1.11-2.694-2.508h5.388c-.108 1.4-1.268 2.507-2.694 2.507zm-7.29-4.007c.702-1.095 1.457-2.904 1.434-5.618-.017-2.062.614-3.8 1.825-5.025C6.757 4.774 8.172 4.19 9.7 4.184c1.527.007 2.943.59 3.985 1.646 1.21 1.226 1.84 2.963 1.823 5.025-.022 2.714.732 4.523 1.437 5.618H2.455z"></path></g></svg>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item" v-if="!isMyself">
+                            <a id="profileFollowBtn" v-if="following" @click="unfollow(user)" v-on:click="followClick" v-on:mouseover="followOver" v-on:mouseleave="followOut" class="nav-link active rounded-pill" style="width: 100px;border: 1px solid transparent;" href="javascript:">Following</a>
+                            <a id="profileFollowBtn" v-if="!following" @click="follow(user)" class="nav-link rounded-pill border border-primary text-primary" href="javascript:">Follow</a>
+                        </li>
+                        <li class="nav-item" v-if="isMyself">
+                            <a class="nav-link rounded-pill border border-primary text-primary">Edit profile</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <span class="fw-bolder fs-5">{{user.name}}</span>
+                </div>
+                <div class="row">
+                    <span class="text-secondary fw-light fs-7">@{{user.username}}</span>
+                </div>
+                <div class="row mt-2 mb-2">
+                    <span class="pre-formatted text-wrap">{{user.bio}}</span>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-secondary fw-light fs-7">
+                        <span class="me-2 text-nowrap" v-if="user.link">
+                            <svg viewBox="0 0 24 24" class="svg-inline-fa"><g><path d="M11.96 14.945c-.067 0-.136-.01-.203-.027-1.13-.318-2.097-.986-2.795-1.932-.832-1.125-1.176-2.508-.968-3.893s.942-2.605 2.068-3.438l3.53-2.608c2.322-1.716 5.61-1.224 7.33 1.1.83 1.127 1.175 2.51.967 3.895s-.943 2.605-2.07 3.438l-1.48 1.094c-.333.246-.804.175-1.05-.158-.246-.334-.176-.804.158-1.05l1.48-1.095c.803-.592 1.327-1.463 1.476-2.45.148-.988-.098-1.975-.69-2.778-1.225-1.656-3.572-2.01-5.23-.784l-3.53 2.608c-.802.593-1.326 1.464-1.475 2.45-.15.99.097 1.975.69 2.778.498.675 1.187 1.15 1.992 1.377.4.114.633.528.52.928-.092.33-.394.547-.722.547z"></path><path d="M7.27 22.054c-1.61 0-3.197-.735-4.225-2.125-.832-1.127-1.176-2.51-.968-3.894s.943-2.605 2.07-3.438l1.478-1.094c.334-.245.805-.175 1.05.158s.177.804-.157 1.05l-1.48 1.095c-.803.593-1.326 1.464-1.475 2.45-.148.99.097 1.975.69 2.778 1.225 1.657 3.57 2.01 5.23.785l3.528-2.608c1.658-1.225 2.01-3.57.785-5.23-.498-.674-1.187-1.15-1.992-1.376-.4-.113-.633-.527-.52-.927.112-.4.528-.63.926-.522 1.13.318 2.096.986 2.794 1.932 1.717 2.324 1.224 5.612-1.1 7.33l-3.53 2.608c-.933.693-2.023 1.026-3.105 1.026z"></path></g></svg>
+                            <span><a :href="user.link" target="_blank" class="text-decoration-none">{{user.link | formatLink(20)}}</a></span>
+                        </span>
+                        <span class="me-2 text-nowrap" v-if="user.location">
+                            <svg viewBox="0 0 24 24" class="svg-inline-fa"><g><path d="M12 14.315c-2.088 0-3.787-1.698-3.787-3.786S9.913 6.74 12 6.74s3.787 1.7 3.787 3.787-1.7 3.785-3.787 3.785zm0-6.073c-1.26 0-2.287 1.026-2.287 2.287S10.74 12.814 12 12.814s2.287-1.025 2.287-2.286S13.26 8.24 12 8.24z"></path><path d="M20.692 10.69C20.692 5.9 16.792 2 12 2s-8.692 3.9-8.692 8.69c0 1.902.603 3.708 1.743 5.223l.003-.002.007.015c1.628 2.07 6.278 5.757 6.475 5.912.138.11.302.163.465.163.163 0 .327-.053.465-.162.197-.155 4.847-3.84 6.475-5.912l.007-.014.002.002c1.14-1.516 1.742-3.32 1.742-5.223zM12 20.29c-1.224-.99-4.52-3.715-5.756-5.285-.94-1.25-1.436-2.742-1.436-4.312C4.808 6.727 8.035 3.5 12 3.5s7.192 3.226 7.192 7.19c0 1.57-.497 3.062-1.436 4.313-1.236 1.57-4.532 4.294-5.756 5.285z"></path></g></svg>
+                            <span>{{user.location}}</span>
+                        </span>
+                        <span class="me-2 text-nowrap">
+                            <svg class="svg-inline-fa" viewBox="0 0 24 24"><g><path d="M19.708 2H4.292C3.028 2 2 3.028 2 4.292v15.416C2 20.972 3.028 22 4.292 22h15.416C20.972 22 22 20.972 22 19.708V4.292C22 3.028 20.972 2 19.708 2zm.792 17.708c0 .437-.355.792-.792.792H4.292c-.437 0-.792-.355-.792-.792V6.418c0-.437.354-.79.79-.792h15.42c.436 0 .79.355.79.79V19.71z"></path><circle cx="7.032" cy="8.75" r="1.285"></circle><circle cx="7.032" cy="13.156" r="1.285"></circle><circle cx="16.968" cy="8.75" r="1.285"></circle><circle cx="16.968" cy="13.156" r="1.285"></circle><circle cx="12" cy="8.75" r="1.285"></circle><circle cx="12" cy="13.156" r="1.285"></circle><circle cx="7.032" cy="17.486" r="1.285"></circle><circle cx="12" cy="17.486" r="1.285"></circle></g></svg>
+                            <span>Joined {{user.joinedAt | formatDate}}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6 mt-2 fs-7">
+                        <span class="fw-bold m-1">{{user.stats.following | formatNumber}}</span><span class="text-secondary me-2">Following</span>
+                        <span class="fw-bold m-1">{{user.stats.followers | formatNumber}}</span><span class="text-secondary">Followers</span>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="new-tweet">
+            <div class="container">
+                <div v-if="parentTweet" class="row mb-4">
+                    <div class="col-1" style="min-width: 75px">
+                        <img class="rounded-circle" :src="parentTweet.author.image ? '/media/' + parentTweet.author.image : '/img/user-placeholder.jpg'" width="50" height="50" />
+                        <div style="width: 2px; background-color: rgb(196, 207, 214); height: 100%; margin-left: auto; margin-right: auto;" class="mt-2 mb-2"></div>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold">
+                            {{parentTweet.author.name}} <span class="text-secondary fw-lighter fs-7">@{{parentTweet.author.username}} · <time-ago :refresh="60" :datetime="parentTweet.createdAt" locale="pt_BR"></time-ago></span>
+                        </div>
+                        <div class="pre-formatted">{{parentTweet.content}}</div>
+                        <div class="mt-3 text-secondary">Replying to <a>@{{parentTweet.author.username}}</a></div>
+                    </div>
+                </div>
+                <div class="row mt-2 mb-2">
+                    <div class="col" style="max-width: 75px">
+                        <img class="rounded-circle" :src="user.picture ? '/media/' + user.picture : '/img/user-placeholder.jpg'" width="50" height="50" />
+                    </div>
+                    <div class="col">
+                        <form ref="newTweetForm">
+                            <div class="mt-3 mb-2">
+                                <textarea v-model="content" :placeholder="parentTweet ? 'Tweet your reply' : 'What\'s happening?'" class="form-control m-0 p-0 tweet" oninput="autoGrow(this)"></textarea>
+                                <div id="tweet-image-preview" class="mt-2">
+                                    <img v-if="media" :src="media" class="border rounded-10" style="object-fit: none; object-position: center center; width: 100%; max-height: 300px; margin-bottom: 1rem;">
+                                </div>
+                                <div class="border-top border-secondary border-1"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <a class="btn" href="javascript:" @click="selectMedia">
+                                        <i class="fas fa-image fa-lg"></i>
+                                    </a>
+                                    <a class="btn">
+                                        <i class="fas fa-grin fa-lg"></i>
+                                    </a>
+                                </div>
+                                <div>
+                                    <input type="button" value="Tweet" class="btn btn-primary rounded-pill" v-on:click="createTweet" :disabled="!isTweetValid()"/>
+                                </div>
+                            </div>
+                            <input type="file" ref="media" @input="pickFile" accept="image/*" class="invisible position-absolute"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="timeline">
+            <div class="container mt-4">
+                    <div class="row mt-2 mb-0 tab">
+                        <div class="col pt-2 pb-2 text-center fw-bolder border-0 border-bottom border-2 border-primary">
+                            <a href="javascript:" class="text-decoration-none">Tweets</a>
+                        </div>
+                        <div class="col pt-2 pb-2 text-center fw-bolder">
+                            <a class="text-decoration-none">Tweets & replies</a>
+                        </div>
+                        <div class="col pt-2 pb-2 text-center fw-bolder">
+                            <a class="text-decoration-none">Media</a>
+                        </div>
+                        <div class="col pt-2 pb-2 text-center fw-bolder">
+                            <a class="text-decoration-none">Likes</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div v-for="(tweet, index) in items" class="container">
+                            <tweet :tweet="tweet" :index="index"></tweet>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="tweet">
+            <div class="row pt-2 mb-2 border-top border-secondary border-1 tweet-card">
+                <div v-if="tweet.type === 'RETWEET'" class="col-12 col-12 ms-4 mb-2">
+                    <div class="text-secondary fs-8">
+                        <svg viewBox="0 0 24 24" class="svg-inline-fa"><g><path d="M23.615 15.477c-.47-.47-1.23-.47-1.697 0l-1.326 1.326V7.4c0-2.178-1.772-3.95-3.95-3.95h-5.2c-.663 0-1.2.538-1.2 1.2s.537 1.2 1.2 1.2h5.2c.854 0 1.55.695 1.55 1.55v9.403l-1.326-1.326c-.47-.47-1.23-.47-1.697 0s-.47 1.23 0 1.697l3.374 3.375c.234.233.542.35.85.35s.613-.116.848-.35l3.375-3.376c.467-.47.467-1.23-.002-1.697zM12.562 18.5h-5.2c-.854 0-1.55-.695-1.55-1.55V7.547l1.326 1.326c.234.235.542.352.848.352s.614-.117.85-.352c.468-.47.468-1.23 0-1.697L5.46 3.8c-.47-.468-1.23-.468-1.697 0L.388 7.177c-.47.47-.47 1.23 0 1.697s1.23.47 1.697 0L3.41 7.547v9.403c0 2.178 1.773 3.95 3.95 3.95h5.2c.664 0 1.2-.538 1.2-1.2s-.535-1.2-1.198-1.2z"></path></g></svg>
+                        <router-link :to="`/${tweet.author.username}`" class="text-decoration-none text-secondary">
+                            <span>{{tweet.author.name}} Retweeted</span>
+                        </router-link>
+                    </div>
+                </div>
+                <div class="col-1" style="min-width: 60px">
+                    <router-link :to="`/${tweet.author.username}`">
+                        <img class="rounded-circle" :src="tweet.author.image ? '/media/' + tweet.author.image : '/img/user-placeholder.jpg'" width="50" height="50" />
+                    </router-link>
+                </div>
+                <div class="col">
+                    <div v-if="tweet.type !== 'RETWEET'">
+                        <div class="fw-bold">
+                            {{tweet.author.name}} <span class="text-secondary fw-lighter fs-7">@{{tweet.author.username}} · <time-ago :refresh="60" :datetime="tweet.createdAt" locale="pt_BR"></time-ago></span>
+                        </div>
+                        <div class="pre-formatted">{{tweet.content}}</div>
+                        <div class="mt-2" v-if="tweet.media">
+                            <img :src="`/media/${tweet.media}`" class="border rounded-10" style="object-fit: none; object-position: center; width: 100%;max-height: 300px;margin-bottom: 1rem;">
+                        </div>
+                    </div>
+                    <div v-if="tweet.type === 'RETWEET'">
+                        <div class="fw-bold">
+                            {{tweet.parent.author.name}} <span class="text-secondary fw-lighter fs-7">@{{tweet.parent.author.username}} · <time-ago :refresh="60" :datetime="tweet.parent.createdAt" locale="pt_BR"></time-ago></span>
+                        </div>
+                        <div class="pre-formatted">{{tweet.parent.content}}</div>
+                        <div class="mt-2" v-if="tweet.parent.media">
+                            <img :src="`/media/${tweet.parent.media}`" class="border rounded-10" style="object-fit: none; object-position: center; width: 100%;max-height: 300px;margin-bottom: 1rem;">
+                        </div>
+                    </div>
+                    <div v-if="tweet.type === 'REPLY'" class="row pt-2 mb-2 border border-secondary border-1 rounded-10 tweet-card m-1 mt-3 pb-3">
+                        <div class="col">
+                            <div class="fw-bold">
+                                <router-link :to="`/${tweet.parent.author.username}`">
+                                    <img class="rounded-circle" :src="tweet.parent.author.image ? '/media/' + tweet.parent.author.image : '/img/user-placeholder.jpg'" width="24" height="24" />
+                                </router-link>
+                                {{tweet.parent.author.name}} <span class="text-secondary fw-lighter fs-7">@{{tweet.parent.author.username}} · <time-ago :refresh="60" :datetime="tweet.parent.createdAt" locale="pt_BR"></time-ago></span>
+                            </div>
+                            <div class="pre-formatted">{{tweet.parent.content}}</div>
+                            <div class="mt-2" v-if="tweet.parent.media">
+                                <img :src="`/media/${tweet.parent.media}`" class="border rounded-10" style="object-fit: none; object-position: center; width: 100%;max-height: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <ul class="nav nav-pills nav-fill">
+                                <li class="nav-item">
+                                    <a @click="reply(tweet)" class="nav-link p-0" href="javascript:">
+                                        <div class="reply">
+                                            <svg viewBox="0 0 24 24" class="svg-inline-sm-fa"><g><path d="M14.046 2.242l-4.148-.01h-.002c-4.374 0-7.8 3.427-7.8 7.802 0 4.098 3.186 7.206 7.465 7.37v3.828c0 .108.044.286.12.403.142.225.384.347.632.347.138 0 .277-.038.402-.118.264-.168 6.473-4.14 8.088-5.506 1.902-1.61 3.04-3.97 3.043-6.312v-.017c-.006-4.367-3.43-7.787-7.8-7.788zm3.787 12.972c-1.134.96-4.862 3.405-6.772 4.643V16.67c0-.414-.335-.75-.75-.75h-.396c-3.66 0-6.318-2.476-6.318-5.886 0-3.534 2.768-6.302 6.3-6.302l4.147.01h.002c3.532 0 6.3 2.766 6.302 6.296-.003 1.91-.942 3.844-2.514 5.176z"></path></g></svg>
+                                            <span class="text-secondary" v-if="tweet.stats && tweet.stats.replies">{{tweet.stats.replies}}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @click="retweet(tweet)" class="nav-link p-0 m-2 mt-0" href="javascript:">
+                                        <div class="retweet">
+                                            <svg viewBox="0 0 24 24" class="svg-inline-sm-fa"><g><path d="M23.77 15.67c-.292-.293-.767-.293-1.06 0l-2.22 2.22V7.65c0-2.068-1.683-3.75-3.75-3.75h-5.85c-.414 0-.75.336-.75.75s.336.75.75.75h5.85c1.24 0 2.25 1.01 2.25 2.25v10.24l-2.22-2.22c-.293-.293-.768-.293-1.06 0s-.294.768 0 1.06l3.5 3.5c.145.147.337.22.53.22s.383-.072.53-.22l3.5-3.5c.294-.292.294-.767 0-1.06zm-10.66 3.28H7.26c-1.24 0-2.25-1.01-2.25-2.25V6.46l2.22 2.22c.148.147.34.22.532.22s.384-.073.53-.22c.293-.293.293-.768 0-1.06l-3.5-3.5c-.293-.294-.768-.294-1.06 0l-3.5 3.5c-.294.292-.294.767 0 1.06s.767.293 1.06 0l2.22-2.22V16.7c0 2.068 1.683 3.75 3.75 3.75h5.85c.414 0 .75-.336.75-.75s-.337-.75-.75-.75z"></path></g></svg>
+                                            <span class="text-secondary" v-if="tweet.stats && tweet.stats.retweets">{{tweet.stats.retweets}}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @click="like(index, tweet)" v-if="!tweet.liked" class="nav-link p-0 m-2 mt-0" href="javascript:">
+                                        <div class="like">
+                                            <svg viewBox="0 0 24 24" class="svg-inline-sm-fa"><g><path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.034 11.596 8.55 11.658 1.518-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.94 2.936-3.952 2.965-.23.562-1.156.562-1.387 0-.014-.03-1.425-2.965-3.954-2.965z"></path></g></svg>
+                                            <span class="text-secondary" v-if="tweet.stats && tweet.stats.likes">{{tweet.stats.likes}}</span>
+                                        </div>
+                                    </a>
+                                    <a @click="dislike(index, tweet)" v-if="tweet.liked" class="nav-link p-0 m-2 mt-0" href="javascript:">
+                                        <div class="like liked">
+                                            <svg viewBox="0 0 24 24" class="svg-inline-sm-fa"><g><path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12z"></path></g></svg>
+                                            <span class="text-secondary" v-if="tweet.stats && tweet.stats.likes">{{tweet.stats.likes}}</span>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link p-0 m-2 mt-0">
+                                        <div class="">
+                                            <svg viewBox="0 0 24 24" class="svg-inline-sm-fa"><g><path d="M17.53 7.47l-5-5c-.293-.293-.768-.293-1.06 0l-5 5c-.294.293-.294.768 0 1.06s.767.294 1.06 0l3.72-3.72V15c0 .414.336.75.75.75s.75-.336.75-.75V4.81l3.72 3.72c.146.147.338.22.53.22s.384-.072.53-.22c.293-.293.293-.767 0-1.06z"></path><path d="M19.708 21.944H4.292C3.028 21.944 2 20.916 2 19.652V14c0-.414.336-.75.75-.75s.75.336.75.75v5.652c0 .437.355.792.792.792h15.416c.437 0 .792-.355.792-.792V14c0-.414.336-.75.75-.75s.75.336.75.75v5.652c0 1.264-1.028 2.292-2.292 2.292z"></path></g></svg>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="latest-users">
+            <div class="card p-0 rounded-10">
+                <div class="card-body p-0">
+                    <h6 class="card-title m-1 p-2 fw-bold">You might like</h6>
+                    <div v-for="(user, index) in items" class="container border-top">
+                        <div class="row pt-2 pb-2 align-items-center">
+                            <div class="col-2 p-0">
+                                <router-link :to="`/${user.username}`">
+                                    <img class="rounded-circle" :src="user.picture ? '/media/' + user.picture : '/img/user-placeholder.jpg'" width="50" height="50" />
+                                </router-link>
+                            </div>
+                            <div class="col p-0">
+                                <div> {{user.name}}</div>
+                                <div class="text-secondary fs-7">@{{user.username}}</div>
+                            </div>
+                            <div class="col-3 p-0">
+                                <a @click="follow(index, user)" v-if="!user.following" href="javascript:" class="btn btn-primary rounded-pill ps-3 pe-3 pt-1 pb-1">Follow</a>
+                                <a @click="unfollow(index, user)" v-if="user.following" href="javascript:" class="btn btn-danger rounded-pill ps-3 pe-3 pt-1 pb-1">Unfollow</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="new-user">
+            <div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="newUserModalLabel">New User</h5>
+                            <button @click="cancel" type="button" class="btn-close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row position-relative">
+                                <div class="col-12 p-0">
+                                    <img class="img-fluid" :src="profile.banner ? '/media/' + profile.banner : '/img/banner-placeholder.jpg'"/>
+                                </div>
+                                <div class="col-3 position-absolute" style="bottom: -60px">
+                                    <img class="rounded-circle border border-white border-4" :src="profile.image ? '/media/' + profile.image : '/img/user-placeholder.jpg'" width="120" height="120" />
+                                </div>
+                            </div>
+                            <div style="height: 70px;"></div>
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input v-model="profile.username" id="username" type="text" class="form-control"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input v-model="profile.name" id="name" type="text" class="form-control"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea v-model="profile.bio" id="bio" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location</label>
+                                <input v-model="profile.location" id="location" type="text" class="form-control"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="website" class="form-label">Website</label>
+                                <input v-model="profile.link" id="website" type="text" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button @click="save" type="button" class="btn btn-primary rounded-pill">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script src="/scripts/vue.min.js"></script>
+        <script src="/scripts/vuex.min.js"></script>
+        <script src="/scripts/vue-router.min.js"></script>
+        <script src="/scripts/vue2-timeago.umd.min.js"></script>
+        <script src="/scripts/moment.min.js"></script>
+        <script src="/scripts/numeral.min.js"></script>
+        <script src="/scripts/axios.min.js"></script>
+        <script src="/scripts/jquery.min.js"></script>
+        <script src="/scripts/bootstrap.bundle.min.js"></script>
+        <script src="/scripts/fontawesome.min.js"></script>
+        <script src="/scripts/toastr.min.js"></script>
+
+        <script>
+            const api = location.origin;
+
+            const getLoggedUser = function (fallback) {
+                const cache = sessionStorage.getItem("user");
+                if (!cache) return fallback;
+
+                return JSON.parse(cache);
+            }
+
+            // TODO convert to vue component
+            function autoGrow(element) {
+                element.style.height = '5px';
+                element.style.height = `${element.scrollHeight}px`;
+            }
+
+            const TimelineLayout = {
+                template: '#timeline-layout',
+                data () {
+                    return {
+                        loading: false,
+                        user: null,
+                        error: null,
+                        evtSource: null
+                    }
+                },
+                watch: {
+                    '$route': 'fetchUser'
+                },
+                created () {
+                    this.fetchUser();
+                },
+                methods: {
+                    fetchUser () {
+                        if (this.evtSource) this.evtSource.close();
+
+                        this.error = this.post = null;
+                        this.loading = true;
+                        const username = this.$route.params.username;
+                        const user = getLoggedUser({username: this.$route.params.username}).username;
+
+                        axios.get(`${api}/users/${username}?user=${user}`)
+                            .then(response => {
+                                this.loading = false;
+                                this.user = response.data;
+                            })
+                            .catch(error => {
+                                this.loading = false;
+                                console.error(error);
+                                this.error = error;
+                            });
+
+                        const ctx = this;
+                        this.evtSource = new EventSource(`${api}/users/${username}/stats`);
+                        this.evtSource.onmessage = function (event) {
+                            if (ctx.user) {
+                                ctx.user.stats = JSON.parse(event.data);
+                            }
+                        }
+                    },
+                    createUser() {
+                        this.$root.$emit('show-new-user-modal');
+                    }
+                }
+            }
+
+            const TimelineHeader = {
+                template: '#timeline-header',
+                props: ['user']
+            }
+
+            const Auth = {
+                template: '#auth',
+                props: ['user'],
+                data () {
+                    return {
+                        loggedUser: null
+                    }
+                },
+                created () {
+                    this.fetchLoggedUser();
+                },
+                methods: {
+                    fetchLoggedUser() {
+                        const prevUser = sessionStorage.getItem("user");
+                        if (!prevUser) {
+                            const username = this.$route.params.username;
+                            axios.get(`${api}/users/${username}`)
+                                .then(response => {
+                                    this.loggedUser = response.data;
+                                    sessionStorage.setItem("user", JSON.stringify(this.loggedUser));
+                                }).catch(function (error) {
+                                    toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                                });
+                        } else {
+                            this.loggedUser = JSON.parse(prevUser);
+                        }
+                    },
+                    switchAccount() {
+                        const username = prompt("Username", this.loggedUser.username);
+                        if (username) {
+                            axios.get(`${api}/users/${username}`)
+                                .then(response => {
+                                    this.loggedUser = response.data;
+                                    sessionStorage.setItem("user", JSON.stringify(this.loggedUser));
+                                    location.reload();
+                                })
+                                .catch(function (error) {
+                                    toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                                });
+                        }
+                    }
+                }
+            }
+
+            const MainMenu = {
+                template: '#main-menu',
+                props: ['user'],
+                methods: {
+                    home() {
+                        const username = getLoggedUser({username: this.$route.params.username}).username;
+                        this.$router.push({ path: username });
+                    },
+                    createTweet() {
+                        this.$root.$emit('show-new-tweet-modal');
+                    }
+                }
+            }
+
+            const Profile = {
+                template: '#profile',
+                data() {
+                    const _user = getLoggedUser({username: this.$route.params.username}).username;
+
+                    return {
+                        following: this.user.following,
+                        isMyself: this.user.username === _user
+                    }
+                },
+                props: ['user'],
+                watch: {
+                    user: function(newVal, oldVal) {
+                        this.following = newVal.following;
+                        this.isMyself = newVal.username === getLoggedUser({username: ''}).username;
+                        if (this.following)
+                            $('#profileFollowBtn').text('Following');
+                        else
+                            $('#profileFollowBtn').text('Follow');
+                    }
+                },
+                mounted () {
+                    this.$root.$on('latest-update-user-following', (user) => {
+                            this.user.following = this.following = user.following;
+                        if (this.user.username === user.username) {
+                            if (this.following)
+                                $('#profileFollowBtn').text('Following');
+                            else
+                                $('#profileFollowBtn').text('Follow');
+                        }
+                    });
+                },
+                methods: {
+                    followOver (event) {
+                        $(event.target).toggleClass("bg-danger");
+                        $(event.target).text('Unfollow');
+                    },
+                    followOut (event) {
+                        $(event.target).toggleClass("bg-danger");
+                        $(event.target).text('Following');
+                    },
+                    followClick (event) {
+                        $(event.target).text('Follow');
+                    },
+                    follow (userToFollow) {
+                        const user = userToFollow.username;
+                        const follower = getLoggedUser({username: this.$route.params.username}).username;
+                        const self = this;
+
+                        axios.post(`${api}/users/${user}/relationships`, {
+                            follower: follower
+                        }).then(function (response) {
+                            self.following = userToFollow.following = true;
+                            self.$root.$emit('update-user-following', userToFollow);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                            if (error.response.data.status === 409) {
+                                self.following = userToFollow.following = true;
+                                self.$root.$emit('update-user-following', userToFollow);
+                            }
+                        });
+                    },
+                    unfollow (userToUnfollow, event) {
+                        const user = userToUnfollow.username;
+                        const follower = getLoggedUser({username: ''}).username;
+                        const self = this;
+
+                        axios.delete(`${api}/users/${user}/relationships/${follower}`).then(function (response) {
+                            self.following = userToUnfollow.following = false;
+                            self.$root.$emit('update-user-following', userToUnfollow);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    }
+                }
+            }
+
+            const NewTweet = {
+                data () {
+                    return {
+                        user: null,
+                        modal: null,
+                        content: '',
+                        media: null,
+                        parentTweet: null
+                    }
+                },
+                props: ['profile'],
+                mounted() {
+                    this.$root.$on('show-new-tweet-modal', (tweet) => {
+                        this.user = getLoggedUser(this.profile);
+                        this.parentTweet = tweet;
+                        this.getModal().show();
+                    });
+                },
+                methods: {
+                    reset() {
+                        this.$refs.newTweetForm.reset();
+                        this.content = '';
+                        this.media = null;
+                        this.parentTweet = null;
+                    },
+                    getModal () {
+                        if (this.modal) return this.modal;
+
+                        const modalEL = document.getElementById('newTweetModal');
+                        let _modal = bootstrap.Modal.getInstance(modalEL);
+                        if (!_modal) {
+                            _modal = new bootstrap.Modal(modalEL, {});
+                            const self = this;
+                            modalEL.addEventListener('hidden.bs.modal', function (event) {
+                                self.reset();
+                            })
+                        }
+
+                        return this.modal = _modal;
+                    },
+                    selectMedia () {
+                        this.$refs.media.click()
+                    },
+                    pickFile () {
+                        const media = this.getMedia();
+                        if (media) {
+                            this.media = URL.createObjectURL(media);
+                        }
+                    },
+                    getMedia() {
+                        if (this.hasMedia()) {
+                            return this.$refs.media.files[0];
+                        }
+                        return null;
+                    },
+                    hasContent() {
+                        return this.content && this.content.length > 0;
+                    },
+                    hasMedia() {
+                        return this.$refs.media && this.$refs.media.files && this.$refs.media.files[0];
+                    },
+                    isTweetValid () {
+                        // TODO allow empty content
+                        return this.hasContent(); // || this.hasMedia();
+                    },
+                    createTweet () {
+                        const username = getLoggedUser({username: ''}).username;
+                        const media = this.getMedia();
+
+                        const formData = new FormData();
+                        formData.append('tweet', new Blob([JSON.stringify({
+                            username: username,
+                            content: this.content,
+                            tweetReplied: (this.parentTweet ? this.parentTweet.uuid : null)
+                        })], {
+                            type: 'application/json'
+                        }));
+
+                        if (media) {
+                            formData.append('media', media);
+                        }
+
+                        axios.post(`${api}/tweets`, formData, {
+                            headers: {
+                                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+                            }
+                        }).then(response => {
+                            this.reset();
+                            this.getModal().hide();
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    }
+                },
+                template: '#new-tweet'
+            };
+
+            const NewUser = {
+                data () {
+                    return {
+                        profile: {}
+                    };
+                },
+                mounted () {
+                    this.$root.$on('show-new-user-modal', () => {
+                        this.getModal().show();
+                    });
+                },
+                methods: {
+                    cancel() {
+                        this.getModal().hide();
+                        this.reset();
+                    },
+                    reset() {
+                        this.profile = {};
+                    },
+                    getModal () {
+                        if (this.modal) return this.modal;
+
+                        const modalEL = document.getElementById('newUserModal');
+                        let _modal = bootstrap.Modal.getInstance(modalEL);
+                        if (!_modal) {
+                            _modal = new bootstrap.Modal(modalEL, {});
+                            const self = this;
+                            modalEL.addEventListener('hidden.bs.modal', function (event) {
+                                self.reset();
+                            })
+                        }
+
+                        return this.modal = _modal;
+                    },
+                    save() {
+                        const formData = new FormData();
+                        formData.append('profile', new Blob([JSON.stringify({
+                            username: this.profile.username,
+                            name: this.profile.name,
+                            bio: this.profile.bio,
+                            location: this.profile.location,
+                            link: this.profile.link
+                        })], {
+                            type: 'application/json'
+                        }));
+
+                        /*
+                        axios.post(`${api}/users`, formData, {
+                            headers: {
+                                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+                            }
+                        })
+                        */
+                        axios.post(`${api}/users`, {
+                            username: this.profile.username,
+                            name: this.profile.name,
+                            bio: this.profile.bio,
+                            location: this.profile.location,
+                            link: this.profile.link
+                        }).then(response => {
+                            this.reset();
+                            this.getModal().hide();
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    }
+                },
+                template: '#new-user'
+            }
+
+            const Timeline = {
+                data () {
+                    return {
+                        items: [],
+                        dic: [],
+                        evtSource: null
+                    }
+                },
+                props: ['user'],
+                watch: {
+                    '$route': 'fetchTimeline'
+                },
+                created () {
+                    this.fetchTimeline();
+                },
+                methods: {
+                    fetchTimeline() {
+                        if (this.evtSource) this.evtSource.close();
+                        this.items = [];
+                        this.dic = [];
+
+                        const ctx = this;
+                        const username = this.$route.params.username;
+                        const requester = getLoggedUser({username: this.$route.params.username}).username;
+                        this.evtSource = new EventSource(`${api}/tweets?username=${username}&requester=${requester}`);
+                        this.evtSource.onmessage = function (event) {
+                            const tweet = JSON.parse(event.data);
+                            const t = ctx.dic[tweet.uuid];
+                            if (t === undefined) {
+                                ctx.dic[tweet.uuid] = tweet;
+                                ctx.items.unshift(tweet);
+                            } else {
+                                t.stats = tweet.stats;
+                                t.liked = tweet.liked;
+                            }
+                                                    }
+                    }
+                },
+                template: '#timeline'
+            }
+
+            const Tweet = {
+                props: ['tweet', 'index'],
+                methods: {
+                    like(index, tweet) {
+                        const self = this;
+                        const username = JSON.parse(sessionStorage.getItem("user")).username;
+                        axios.post(`${api}/tweets/${tweet.uuid}/likes`, {
+                            user: username
+                        }).then(function (response) {
+                            tweet.liked = true;
+                            Vue.set(self.$parent.items, index, tweet);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                            if (error.response.data.status === 409) {
+                                tweet.liked = true;
+                                Vue.set(self.$parent.items, index, tweet);
+                            }
+                        });
+                    },
+                    dislike(index, tweet) {
+                        const self = this;
+                        const username = getLoggedUser({username: ''}).username;
+                        axios.delete(`${api}/tweets/${tweet.uuid}/likes/${username}`).then(function (response) {
+                            tweet.liked = false;
+                            Vue.set(self.$parent.items, index, tweet);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    },
+                    retweet(tweet, event) {
+                        const username = getLoggedUser({username: ''}).username;
+                        axios.post(`${api}/tweets/${tweet.uuid}/retweets`, {
+                            user: username
+                        }).then(function (response) {
+                            console.log(response);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    },
+                    reply(tweet) {
+                        this.$root.$emit('show-new-tweet-modal', tweet);
+                    }
+                },
+                template: '#tweet'
+            }
+
+            const LatestUsers = {
+                data () {
+                    return {
+                        items: [],
+                        dic: [],
+                        evtSource: null
+                    }
+                },
+                props: ['user'],
+                watch: {
+                    '$route': 'fetchLatestUsers'
+                },
+                mounted () {
+                    this.fetchLatestUsers();
+                    this.$root.$on('update-user-following', (user) => {
+                        this.dic[user.uuid].following = user.following;
+                    });
+                },
+                methods: {
+                    fetchLatestUsers() {
+                        if (this.evtSource) this.evtSource.close();
+                        this.items = [];
+                        this.dic = [];
+
+                        const ctx = this;
+                        const username = getLoggedUser({username: this.$route.params.username}).username;
+                        this.evtSource = new EventSource(`${api}/users/latest?username=${username}`);
+                        this.evtSource.onmessage = function (event) {
+                            const user = JSON.parse(event.data);
+                            if (ctx.dic[user.uuid] === undefined) {
+                                ctx.dic[user.uuid] = user;
+                                ctx.items.unshift(user);
+                            }
+                        }
+                    },
+                    follow(index, userToFollow) {
+                        const user = userToFollow.username;
+                        const follower = getLoggedUser({username: ''}).username;
+                        const self = this;
+
+                        axios.post(`${api}/users/${user}/relationships`, {
+                            follower: follower
+                        }).then(function (response) {
+                            userToFollow.following = true;
+                            Vue.set(self.items, index, userToFollow);
+                            self.$root.$emit('latest-update-user-following', userToFollow);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                            if (error.response.data.status === 409) {
+                                userToFollow.following = true;
+                                Vue.set(self.items, index, userToFollow);
+                                self.$root.$emit('latest-update-user-following', userToFollow);
+                            }
+                        });
+                    },
+                    unfollow(index, userToUnfollow) {
+                        const user = userToUnfollow.username;
+                        const follower = getLoggedUser({username: ''}).username;
+                        const self = this;
+
+                        axios.delete(`${api}/users/${user}/relationships/${follower}`).then(function (response) {
+                            userToUnfollow.following = false;
+                            Vue.set(self.items, index, userToUnfollow);
+                            self.$root.$emit('latest-update-user-following', userToUnfollow);
+                        }).catch(function (error) {
+                            toastr.error(`${error.response.data.message}`, `${error.response.data.status}: ${error.response.data.error}`);
+                        });
+                    }
+                },
+                template: '#latest-users'
+            }
+
+            const routes = [
+                { path: '/:username', component: TimelineLayout }
+            ]
+
+            const router = new VueRouter({
+                mode: 'history',
+                base: '/timeline',
+                routes: routes
+            });
+
+            Vue.component('main-menu', MainMenu);
+            Vue.component('timeline-header', TimelineHeader);
+            Vue.component('auth', Auth);
+            Vue.component('profile', Profile);
+            Vue.component('new-tweet', NewTweet);
+            Vue.component('timeline', Timeline);
+            Vue.component('tweet', Tweet);
+            Vue.component('latest-users', LatestUsers);
+            Vue.component('new-user', NewUser);
+
+            Vue.filter('formatDate', function(value) {
+                if (value) {
+                    return moment(String(value)).format('MMMM YYYY')
+                }
+            });
+
+            Vue.filter("formatNumber", function (value) {
+                return numeral(value).format("0,0");
+            });
+
+            Vue.filter("formatLink", function (value, maxLength) {
+                if (!value) return value;
+
+                let formattedValue = value.replace(/http(s)?:\/\//ig, "");
+                if (formattedValue.length <= maxLength) return formattedValue;
+
+                return formattedValue.substring(0, maxLength) + '...';
+            });
+
+            new Vue({
+                router
+            }).$mount('#app');
+        </script>
+
+    </body>
+</html>

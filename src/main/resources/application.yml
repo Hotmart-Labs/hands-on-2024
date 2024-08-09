@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: hands-on-2024
+  main:
+    allow-bean-definition-overriding: false
+  data:
+    mongodb:
+      uri: mongodb://localhost/handson2024
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+    mime-types: text/html,text/css,application/javascript,application/json
+    min-response-size: 2048
+
+springdoc:
+  version: '1.0'
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+hands-on:
+  media:
+    path: ${user.home}/.handson/media/
+  mongodb:
+    auto-generate: true
+
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+management:
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include: info, health, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 5.0.5
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  data:
+    mongodb:
+      uri: mongodb://localhost/handson2024-test
+
+hands-on:
+  mongodb:
+    auto-generate: false
+
+server:
+  error:
+    include-message: ALWAYS
