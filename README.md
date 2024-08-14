@@ -4,15 +4,17 @@ O Hands-on é um evento online para você aprender novas tecnologias, evoluir su
 
 ### Programação
 
-09h00 - Abertura
+09h00 - Recepção e Café
 
-09h15 - Palestra: Microsserviços com Spring Boot
+09h30 - Abertura
 
-10h15 - Break Time
+10h55 - Palestra: Microsserviços com Spring Boot
 
-10h30 - Hands-on! Desafio prático em grupos
+12h30 - Almoço
 
-13h00 - Encerramento
+14h00 - Hands-on! Desafio prático em duplas
+
+18h40 - Encerramento
 
 ## Microsserviços com Spring Boot
 
@@ -57,7 +59,7 @@ Um usuário deve ser capaz de postar um tweet de outra pessoa em sua linha do te
 - Utilize o teste TweetControllerTest.retweetWithValidUserAndTweetShouldReturnCreated
 
 ### Bonus
-Que tal melhorar a cobertura de testes do projeto? Você encontrará no código testes unitários e de integração prontos que servem de referência.
+Que tal construir novas funcionalidades que envolvam o front-end e back-end, ponta a ponta, como por exemplo a tela de Perfil do usuário. Você também pode melhorar a cobertura de testes do projeto. Você encontrará exemplos no código de testes unitários e de integração prontos que servem de referência, mas que não estão compreendendo todas as possibilidades testáveis.
 
 ## Informações Úteis
 
